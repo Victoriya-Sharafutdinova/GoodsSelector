@@ -1,6 +1,9 @@
 package com.example.GoodsSelector.entities;
 
+import com.example.GoodsSelector.models.ProductTypeModel;
+
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -10,15 +13,30 @@ public class ProductType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private Long categoryId;
+
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "product_type_id")
+    @JoinColumn(name = "productTypeId")
     private List<Product> products;
 
 
-    public ProductType(){}
+    public ProductType() {}
+
+    public ProductType(ProductTypeModel productTypeModel){
+        this.id = productTypeModel.getId();
+        this.name = productTypeModel.getName();
+        this.categoryId = productTypeModel.getCategoryId();
+        if (productTypeModel.getProducts() != null) {
+            this.products = new ArrayList<>();
+            for (var product : productTypeModel.getProducts()) {
+                this.products.add(new Product(product));
+            }
+        }
+    }
 
     public Long getId() {
         return id;
@@ -34,5 +52,21 @@ public class ProductType {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
     }
 }

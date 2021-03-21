@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 public class CategoryController {
-
     private final CategoryService categoryService;
 
     @Autowired
@@ -45,7 +44,8 @@ public class CategoryController {
 
     @PutMapping(value = "/categories/{id}")
     public ResponseEntity<?> update(@PathVariable(name = "id") Long id, @RequestBody CategoryModel categoryModel) {
-        final boolean updated = categoryService.update(categoryModel, id);
+        categoryModel.setId(id);
+        final boolean updated = categoryService.update(categoryModel);
 
         return updated
                 ? new ResponseEntity<>(HttpStatus.OK)

@@ -3,6 +3,7 @@ package com.example.GoodsSelector.entities;
 import com.example.GoodsSelector.models.CategoryModel;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -12,23 +13,25 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String name;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "categoryId")
     private List<ProductType> productTypes;
 
 
-    public Category(){}
-
-    public Category(Long id, CategoryModel categoryModel){
-        this.id = id;
-        this.name = categoryModel.getName();
-    }
+    public Category() {}
 
     public Category(CategoryModel categoryModel){
+        this.id = categoryModel.getId();
         this.name = categoryModel.getName();
+        if (categoryModel.getProductTypes() != null) {
+            this.productTypes = new ArrayList<>();
+            for (var productType : categoryModel.getProductTypes()) {
+                this.productTypes.add(new ProductType(productType));
+            }
+        }
     }
 
     public Long getId() {
@@ -45,5 +48,13 @@ public class Category {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<ProductType> getProductTypes() {
+        return productTypes;
+    }
+
+    public void setProductTypes(List<ProductType> productTypes) {
+        this.productTypes = productTypes;
     }
 }

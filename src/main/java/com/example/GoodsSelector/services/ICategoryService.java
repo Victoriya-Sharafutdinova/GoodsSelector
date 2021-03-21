@@ -18,10 +18,9 @@ public interface ICategoryService {
      * Обновляет категории с заданным ID,
      * в соответствии с переданной категорией
      * @param categoryModel - категория в соответсвии с которой нужно обновить данные
-     * @param id - id категории которую нужно обновить
      * @return - true если данные были обновлены, иначе false
      */
-    boolean update(CategoryModel categoryModel, Long id);
+    boolean update(CategoryModel categoryModel);
 
     /**
      * Удаляет категорию с заданным ID

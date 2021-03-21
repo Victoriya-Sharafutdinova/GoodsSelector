@@ -11,7 +11,6 @@ import java.util.List;
 
 @Service
 public class CategoryService implements ICategoryService {
-
     @Autowired
     private final ICategoryRepository categoryRepository;
 
@@ -40,9 +39,9 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public boolean update(CategoryModel categoryModel, Long id) {
-        if (categoryRepository.getOne(id) != null) {
-            categoryRepository.save(new Category(id, categoryModel));
+    public boolean update(CategoryModel categoryModel) {
+        if (categoryRepository.getOne(categoryModel.getId()) != null) {
+            categoryRepository.save(new Category(categoryModel));
             return true;
         }
 
