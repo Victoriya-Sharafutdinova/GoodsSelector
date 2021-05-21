@@ -23,7 +23,7 @@ public class CategoryService implements ICategoryService {
         List<CategoryModel> categoryModels = new ArrayList<>();
         List<Category> categories = categoryRepository.findAll();
         for (Category category: categories) {
-            categoryModels.add(new CategoryModel(category));
+            categoryModels.add(new CategoryModel(category, true));
         }
         return categoryModels;
     }

@@ -26,6 +26,17 @@ public class CategoryModel {
         }
     }
 
+    public CategoryModel(Category category, boolean notLoadProductsParam) {
+        this.id = category.getId();
+        this.name = category.getName();
+        if (category.getProductTypes() != null) {
+            this.productTypes = new ArrayList<>();
+            for (var productType : category.getProductTypes()) {
+                this.productTypes.add(new ProductTypeModel(productType, notLoadProductsParam));
+            }
+        }
+    }
+
     public Long getId() {
         return id;
     }

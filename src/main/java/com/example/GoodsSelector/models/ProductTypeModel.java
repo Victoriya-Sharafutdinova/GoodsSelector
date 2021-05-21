@@ -29,6 +29,12 @@ public class ProductTypeModel {
         }
     }
 
+    public ProductTypeModel(ProductType productType, boolean notLoadProductsParam) {
+        this.id = productType.getId();
+        this.name = productType.getName();
+        this.categoryId = productType.getCategoryId();
+    }
+
     public Long getId() {
         return id;
     }

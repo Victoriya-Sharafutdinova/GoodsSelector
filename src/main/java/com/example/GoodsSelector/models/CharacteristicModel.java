@@ -44,6 +44,10 @@ public class CharacteristicModel {
         return type;
     }
 
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
     public String getValue() {
         return value;
     }
@@ -52,26 +56,34 @@ public class CharacteristicModel {
         this.value = value;
     }
 
-    public CharacteristicValue getTypedValue() {
-        if (type == 0) {
-            return new CharacteristicValue<String>(value);
-        } else if (type == 1) {
-            return new CharacteristicValue<Integer>(Integer.parseInt(value));
-        } else if (type == 2) {
-            return new CharacteristicValue<Float>(Float.parseFloat(value));
-        }
-        return new CharacteristicValue<String>(value);
-    }
-
-    public void setTypedValue(CharacteristicValue value) {
-        this.value = value.getValue().toString();
-    }
-
     public Long getProductId() {
         return productId;
     }
 
     public void setProductId(Long productId) {
         this.productId = productId;
+    }
+
+    public boolean isAsc() {
+        return type < 3;
+    }
+
+    public int compare (int characteristicType, String characteristicValue) {
+        if (type != characteristicType) {
+            return 0;
+        }
+        int type = this.type % 3;
+        if (type == 0) {
+            return 0;
+        } else if (type == 1) {
+            var currentValue = Integer.parseInt(value);
+            var anotherValue = Integer.parseInt(characteristicValue);
+            return Integer.compare(currentValue, anotherValue);
+        } else if (type == 2) {
+            var currentValue = Float.parseFloat(value);
+            var anotherValue = Float.parseFloat(characteristicValue);
+            return Float.compare(currentValue, anotherValue);
+        }
+        return 0;
     }
 }
