@@ -23,6 +23,11 @@ public class History {
 
     public History() {}
 
+    public History(Long userId, Date date) {
+        this.userId = userId;
+        this.date = date;
+    }
+
     public Long getId() {
         return id;
     }

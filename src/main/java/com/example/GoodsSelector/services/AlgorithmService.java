@@ -1,11 +1,10 @@
 package com.example.GoodsSelector.services;
 
-import com.example.GoodsSelector.models.CharacteristicModel;
-import com.example.GoodsSelector.models.CharacteristicsRangeModel;
-import com.example.GoodsSelector.models.ProductModel;
-import com.example.GoodsSelector.models.ProductTypeModel;
-import com.example.GoodsSelector.repositories.IProductRepository;
-import com.example.GoodsSelector.repositories.IProductTypeRepository;
+import com.example.GoodsSelector.entities.*;
+import com.example.GoodsSelector.models.*;
+import com.example.GoodsSelector.repositories.*;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,14 +12,31 @@ import java.util.*;
 
 @Service
 public class AlgorithmService implements IAlgorithmService {
-    @Autowired
-    private final IProductRepository productRepository;
+    private KeyManager keyManager;
+
     @Autowired
     private final IProductTypeRepository productTypeRepository;
 
-    public AlgorithmService(IProductRepository productRepository, IProductTypeRepository productTypeRepository){
-        this.productRepository = productRepository;
+    @Autowired
+    private final IUserRepository userRepository;
+
+    @Autowired
+    private final IHistoryRepository historyRepository;
+
+    @Autowired
+    private final IHistoryProductRepository historyProductRepository;
+
+    @Autowired
+    private final ICharacteristicHistoryProductRepository characteristicHistoryProductRepository;
+
+    public AlgorithmService(IProductTypeRepository productTypeRepository, IUserRepository userRepository, IHistoryRepository historyRepository, IHistoryProductRepository historyProductRepository, ICharacteristicHistoryProductRepository characteristicHistoryProductRepository){
         this.productTypeRepository = productTypeRepository;
+        this.userRepository = userRepository;
+        this.historyRepository = historyRepository;
+        this.historyProductRepository = historyProductRepository;
+        this.characteristicHistoryProductRepository = characteristicHistoryProductRepository;
+
+        keyManager = KeyManager.getInstance();
     }
 
     @Override
@@ -63,7 +79,7 @@ public class AlgorithmService implements IAlgorithmService {
     }
 
     @Override
-    public List<ProductModel> getGoodsTop(List<CharacteristicsRangeModel> characteristicsRangeModels, ProductTypeModel productTypeModel) {
+    public List<ProductModel> getGoodsTop(List<CharacteristicsRangeModel> characteristicsRangeModels, ProductTypeModel productTypeModel, UserTokenModel userTokenModel) {
         var products = productTypeRepository.getOne(productTypeModel.getId()).getProducts();
 
         // Фильтрация товаров по заданным диапазонам характеристик
@@ -122,6 +138,8 @@ public class AlgorithmService implements IAlgorithmService {
             return productModels;
         }
 
+
+       var allCharacteristicsRangeModels = new ArrayList<>(characteristicsRangeModels);
         // Удаление текстовых характеристик из листа диапазона характеристик
         for (int i = 0; i < characteristicsRangeModels.size(); i++) {
             if (characteristicsRangeModels.get(i).getType() % 3 == 0) {
@@ -232,6 +250,42 @@ public class AlgorithmService implements IAlgorithmService {
         var productModels = new ArrayList<ProductModel>();
         for (var element : sortedResult) {
             productModels.add(new ProductModel(products.get(element.getKey())));
+        }
+
+
+        // Сохраняем результаты поиска в историю, если пользователь авторизован
+        if (userTokenModel.getToken() != null && !userTokenModel.getToken().equals("")) {
+            long id = 0;
+            String subject = "";
+            try {
+                subject = Jwts.parserBuilder().setSigningKey(keyManager.getKey()).build().parseClaimsJws(userTokenModel.getToken()).getBody().getSubject();
+            }
+            catch (SignatureException e) {
+                return productModels;
+            }
+            try {
+                id = Long.parseLong(subject);
+            }
+            catch (NumberFormatException e) {
+                return productModels;
+            }
+            var user = userRepository.getOne(id);
+            if (user != null) {
+                var history = new History(id, new Date(System.currentTimeMillis()));
+                history = historyRepository.save(history);
+                for (var i = 0; i < productModels.size(); i++) {
+                    var productModel = productModels.get(i);
+                    var historyProduct = historyProductRepository.save(new HistoryProduct(history.getId(), new Product(productModel.getId()), i));
+                    for (var j = 0; j < allCharacteristicsRangeModels.size(); j++) {
+                        for (var characteristic : productModel.getCharacteristics()) {
+                            if (allCharacteristicsRangeModels.get(j).getName().equals(characteristic.getName())
+                                    && allCharacteristicsRangeModels.get(j).getType() == characteristic.getType()) {
+                                characteristicHistoryProductRepository.save(new CharacteristicHistoryProduct(historyProduct.getId(), new Characteristic(characteristic.getId()), j));
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         return productModels;

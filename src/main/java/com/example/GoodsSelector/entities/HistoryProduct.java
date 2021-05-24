@@ -1,6 +1,7 @@
 package com.example.GoodsSelector.entities;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "historiesProducts")
@@ -16,7 +17,20 @@ public class HistoryProduct {
     @JoinColumn(name = "productId", nullable = false)
     private Product product;
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "historyProductId")
+    private List<CharacteristicHistoryProduct> characteristicHistoryProducts;
+
+    @Column(nullable = false)
+    private Integer orderIndex;
+
     public HistoryProduct() {}
+
+    public HistoryProduct(Long historyId, Product product, Integer orderIndex) {
+        this.historyId = historyId;
+        this.product = product;
+        this.orderIndex = orderIndex;
+    }
 
     public Long getId() {
         return id;
@@ -40,5 +54,21 @@ public class HistoryProduct {
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    public Integer getOrderIndex() {
+        return orderIndex;
+    }
+
+    public void setOrderIndex(Integer orderIndex) {
+        this.orderIndex = orderIndex;
+    }
+
+    public List<CharacteristicHistoryProduct> getCharacteristicHistoryProducts() {
+        return characteristicHistoryProducts;
+    }
+
+    public void setCharacteristicHistoryProducts(List<CharacteristicHistoryProduct> characteristicHistoryProducts) {
+        this.characteristicHistoryProducts = characteristicHistoryProducts;
     }
 }

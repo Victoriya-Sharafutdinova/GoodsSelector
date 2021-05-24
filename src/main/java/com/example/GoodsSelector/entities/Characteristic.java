@@ -35,6 +35,10 @@ public class Characteristic {
         this.productId = characteristicModel.getProductId();
     }
 
+    public Characteristic(Long id) {
+        this.id = id;
+    }
+
     public Long getId() {
         return id;
     }

@@ -32,6 +32,6 @@ public class AlgorithmController {
 
     @PostMapping(value = "/goodsTop")
     public ResponseEntity<List<ProductModel>> getGoodsTop(@RequestBody GoodsTopInfo goodsTopInfo) {
-        return new ResponseEntity<>(algorithmService.getGoodsTop(goodsTopInfo.getCharacteristicsRangeModels(), goodsTopInfo.getProductTypeModel()), HttpStatus.OK);
+        return new ResponseEntity<>(algorithmService.getGoodsTop(goodsTopInfo.getCharacteristicsRangeModels(), goodsTopInfo.getProductTypeModel(), goodsTopInfo.getUserTokenModel()), HttpStatus.OK);
     }
 }
